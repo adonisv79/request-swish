@@ -1,0 +1,50 @@
+{
+  "name": "request-swish",
+  "version": "1.0.0",
+  "description": "Request client utilizing the swish protocol",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src"
+  ],
+  "scripts": {
+    "dist:client": "node dist/tools/test-client",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adonisv79/request-swish.git"
+  },
+  "keywords": [
+    "request",
+    "swish",
+    "client"
+  ],
+  "author": "Adonis Lee Villamor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adonisv79/request-swish/issues"
+  },
+  "homepage": "https://github.com/adonisv79/request-swish#readme",
+  "dependencies": {
+    "swish-protocol": "2.0.1"
+  },
+  "devDependencies": {
+    "@types/jest": "25.1.4",
+    "@types/node": "13.9.5",
+    "@types/request": "^2.48.4",
+    "@types/request-promise": "^4.1.46",
+    "@typescript-eslint/eslint-plugin": "2.25.0",
+    "@typescript-eslint/parser": "2.25.0",
+    "eslint": "6.1.0",
+    "eslint-config-airbnb": "18.1.0",
+    "eslint-plugin-import": "2.20.2",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-react": "7.19.0",
+    "jest": "24.8.0",
+    "request": "2.88.0",
+    "request-promise": "4.2.4",
+    "ts-jest": "25.2.1",
+    "typescript": "3.8.3"
+  }
+}
