@@ -2,16 +2,12 @@ import RequestSwishClient, { HttpMethods, HTTPRequestConfig } from '../src/index
 
 const SERVER_URL = 'http://localhost:3000';
 const httpStartHandshake: HTTPRequestConfig = {
-  method: HttpMethods.GET,
-  uri: `${SERVER_URL}/auth/swish/handshake`,
-};
-const httpSendMessage: HTTPRequestConfig = {
   method: HttpMethods.POST,
-  uri: `${SERVER_URL}/auth/swish/handshake`,
+  uri: `${SERVER_URL}/auth/handshake`,
 };
 const httpKillHandshake: HTTPRequestConfig = {
   method: HttpMethods.DELETE,
-  uri: `${SERVER_URL}/auth/swish/handshake`,
+  uri: `${SERVER_URL}/auth/handshake`,
 };
 const swishClient = new RequestSwishClient(httpStartHandshake, httpKillHandshake);
 
@@ -20,7 +16,7 @@ async function testHandShake(): Promise<boolean> {
     console.log('Starting handshake...');
     const r = await swishClient.establishHandshake();
     console.log(`Handshake completed! your session_id is ${swishClient.SessionId}`);
-    console.log(r);
+    console.log(r.swishResponse || r.body);
     return true;
   } catch (err) {
     console.log(err.message);
@@ -31,12 +27,14 @@ async function testHandShake(): Promise<boolean> {
 async function testRequest(path: string, body: any) {
   try {
     console.log(`Sending request ${JSON.stringify(body)}`);
-    const cfg: HTTPRequestConfig = {
-      method: HttpMethods.GET,
+    const r = await swishClient.sendSwish({
+      json: true,
+      method: HttpMethods[HttpMethods.POST],
+      resolveWithFullResponse: true,
       uri: `${SERVER_URL}/${path}`,
-    };
-    const r = await swishClient.sendMessage(cfg, body);
-    console.dir(r);
+      body,
+    });
+    console.log(r.swishResponse || r.body);
   } catch (err) {
     console.log(err.message);
   }
@@ -44,9 +42,8 @@ async function testRequest(path: string, body: any) {
 
 async function testDestroySession() {
   console.log('Destroying handshake session...');
-
   const r = await swishClient.releaseHandshake();
-  console.log(r);
+  console.log(r.swishResponse || r.body);
 }
 
 async function test() {
