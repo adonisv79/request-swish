@@ -9,7 +9,9 @@
   ],
   "scripts": {
     "dist:client": "node dist/tools/test-client",
-    "test": "jest"
+    "test": "jest",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -29,7 +31,8 @@
   "dependencies": {
     "request": "2.88.0",
     "request-promise": "4.2.4",
-    "swish-protocol": "^2.2.1"
+    "swish-protocol": "^2.2.1",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@types/jest": "25.1.4",
@@ -46,5 +49,6 @@
     "jest": "24.8.0",
     "ts-jest": "25.2.1",
     "typescript": "3.8.3"
-  }
+  },
+  "snyk": true
 }
