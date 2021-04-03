@@ -1,65 +1,65 @@
-import RequestSwishClient, { HttpMethods, HTTPRequestConfig } from '../src/index';
+/* eslint-disable no-console */
+import RequestSwishClient, { HTTPRequestConfig } from '../src/index'
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = 'http://localhost:3000'
 const httpStartHandshake: HTTPRequestConfig = {
-  method: HttpMethods.POST,
-  uri: `${SERVER_URL}/auth/handshake`,
-};
+  method: 'POST',
+  url: `${SERVER_URL}/auth/handshake`,
+}
 const httpKillHandshake: HTTPRequestConfig = {
-  method: HttpMethods.DELETE,
-  uri: `${SERVER_URL}/auth/handshake`,
-};
-const swishClient = new RequestSwishClient(httpStartHandshake, httpKillHandshake);
+  method: 'DELETE',
+  url: `${SERVER_URL}/auth/handshake`,
+}
+const swishClient = new RequestSwishClient(httpStartHandshake, httpKillHandshake)
 
 async function testHandShake(): Promise<boolean> {
   try {
-    console.log('Starting handshake...');
-    const r = await swishClient.establishHandshake();
-    console.log(`Handshake completed! your session_id is ${swishClient.SessionId}`);
-    console.log(r.swishResponse || r.body);
-    return true;
+    console.log('Starting handshake...')
+    const r = await swishClient.establishHandshake()
+    console.log(`Handshake completed! your session_id is ${swishClient.SessionId}`)
+    console.log(r.swishResponse)
+    return true
   } catch (err) {
-    console.log(err.message);
+    console.log(err.message)
   }
-  return false;
+  return false
 }
 
-async function testRequest(path: string, body: any) {
+async function testRequest(path: string, data: Record<string, unknown>) {
   try {
-    console.log(`Sending request ${JSON.stringify(body)}`);
+    console.log(`Sending request ${JSON.stringify(data)}`)
     const r = await swishClient.sendSwish({
-      json: true,
-      method: HttpMethods[HttpMethods.POST],
-      resolveWithFullResponse: true,
-      uri: `${SERVER_URL}/${path}`,
-      body,
-    });
-    console.log(r.swishResponse || r.body);
+      method: 'POST',
+      responseType: 'json',
+      url: `${SERVER_URL}/${path}`,
+      data,
+    })
+    console.log(r.swishResponse)
   } catch (err) {
-    console.log(err.message);
+    console.log(err.message)
   }
 }
 
 async function testDestroySession() {
-  console.log('Destroying handshake session...');
-  const r = await swishClient.releaseHandshake();
-  console.log(r.swishResponse || r.body);
+  console.log('Destroying handshake session...')
+  const r = await swishClient.releaseHandshake()
+  console.log(r.swishResponse)
 }
 
 async function test() {
   try {
-    await testHandShake();
+    await testHandShake()
     // now lets start communicating to the secured endpoints
-    await testRequest('test/success', { action: 'hello', message: 'Adonis Villamor', passcode: 'whoami' });
+    await testRequest('test/success', { action: 'hello', message: 'Adonis Villamor', passcode: 'whoami' })
     // send a different one this time
-    await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' });
+    await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' })
     // destroy the session
-    await testDestroySession();
+    await testDestroySession()
     // try an illegal access now session is destoryed
-    await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' });
+    await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' })
   } catch (err) {
-    console.error(err.message);
+    console.error(err.message)
   }
 }
 
-test();
+test()
