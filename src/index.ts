@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import {
-  SwishClient, SwishBody, SwishPackage, SwishHeaders,
+  SwishClient, SwishBody, SwishHeaders,
 } from 'swish-protocol'
 
 /** HTTP Request parameters used to identify a public resource */
@@ -57,10 +57,10 @@ export default class RequestSwishClient {
       && response.headers['swish-iv'] && response.headers['swish-key']
       && response.headers['swish-next'] && response.headers['swish-sess-id']
     ) { return true }
-    return false
+    throw new Error('SWISH_RESPONSE_INVALID')
   }
 
-  /** Performs a swish handshake connection with a server */
+  /** Performs a swish handshake connection with a server and starts a new session */
   async establishHandshake(): Promise<SwishResponse> {
     const options: AxiosRequestConfig = {
       method: this.handshakeStartConfig.method,
@@ -80,22 +80,14 @@ export default class RequestSwishClient {
     return response
   }
 
-  /** Ends the swish handshake connection with the server */
+  /** Ends the swish handshake connection with the server and clears the session */
   async releaseHandshake(): Promise<SwishResponse> {
     const options: AxiosRequestConfig = {
       method: this.handshakeKillConfig.method,
       responseType: 'json',
       url: this.handshakeKillConfig.url,
     }
-    const swish = this.client.encryptRequest({})
-    const swishHeaders: SwishHttpHeaders = {
-      'swish-action': 'session_destroy',
-      'swish-iv': swish.headers.swishIV,
-      'swish-key': swish.headers.swishKey,
-      'swish-next': swish.headers.swishNextPublic,
-      'swish-sess-id': swish.headers.swishSessionId,
-    }
-    const response = await this.handleRequest(options, swishHeaders, swish.body)
+    const response = await this.sendSwish(options)
     this.sessionId = ''
     return response
   }
@@ -115,72 +107,43 @@ export default class RequestSwishClient {
       'swish-next': swish.headers.swishNextPublic,
       'swish-sess-id': swish.headers.swishSessionId,
     }
-    const result = await this.handleRequest(options, swishHeaders, swish.body)
-    return result
-  }
-
-  /**
-   * Sends a normal Request-promise call
-   * @param options The request options to use
-   */
-  async sendNormal(options: AxiosRequestConfig): Promise<SwishResponse> {
-    const result = await this.handleRequest(options)
-    return result
+    const response = await this.handleRequest(options, swishHeaders, swish.body)
+    return response
   }
 
   private async handleRequest(options: AxiosRequestConfig, swishHeaders?: SwishHttpHeaders, swishBody?: SwishBody): Promise<SwishResponse> {
     const retVal: Partial<SwishResponse> = {}
-    try {
-      let usedSwish = false
-      if (swishHeaders || swishBody) { // if any exists...
-        if (!(swishHeaders && swishBody)) { // but not both
-          throw new Error('SWISH_REQUEST_INVALID_FORMAT')
-        } else {
-          options.headers = { ...options.headers, ...swishHeaders } // merge the headers...
-          options.data = swishBody // them override the entire body with the encrypted version
-          usedSwish = true
-        }
+
+    if (swishHeaders || swishBody) { // if any exists...
+      if (!(swishHeaders && swishBody)) { // but not both
+        throw new Error('SWISH_REQUEST_INVALID_FORMAT')
+      } else {
+        options.headers = { ...options.headers, ...swishHeaders } // merge the headers...
+        options.data = swishBody // them override the entire body with the encrypted version
       }
-      const response = await axios(options)
-      if (usedSwish && RequestSwishClient.swishResponseIsValid(response)) { // handle swish decryption
-        retVal.swishResponseHeaders = {
-          swishAction: response.headers['swish-action'],
-          swishIV: response.headers['swish-iv'],
-          swishKey: response.headers['swish-key'],
-          swishNextPublic: response.headers['swish-next'],
-          swishSessionId: response.headers['swish-sess-id'],
-        }
-        if (swishHeaders && swishHeaders['swish-action'] === 'handshake_init') {
-          retVal.swishResponse = this.client.handleHandshakeResponse({
-            headers: retVal.swishResponseHeaders,
-            body: response.data,
-          })
-        } else {
-          retVal.swishResponse = this.client.decryptResponse({
-            headers: retVal.swishResponseHeaders,
-            body: response.data,
-          })
-        }
-      }
-      return retVal as SwishResponse
-    } catch (err) {
-      if (err.response?.body && err.response?.headers
-        && RequestSwishClient.swishResponseIsValid(err.response)) {
-        const swishRes: SwishPackage = {
-          headers: {
-            swishAction: err.response.headers['swish-action'],
-            swishIV: err.response.headers['swish-iv'],
-            swishKey: err.response.headers['swish-key'],
-            swishNextPublic: err.response.headers['swish-next'],
-            swishSessionId: err.response.headers['swish-sess-id'],
-          },
-          body: err.response.body,
-        }
-        retVal.swishResponseHeaders = err.response?.headers
-        retVal.swishResponse = this.client.decryptResponse(swishRes)
-        return retVal as SwishResponse
-      }
-      throw err
     }
+
+    const response = await axios(options)
+    if (RequestSwishClient.swishResponseIsValid(response)) {
+      retVal.swishResponseHeaders = {
+        swishAction: response.headers['swish-action'],
+        swishIV: response.headers['swish-iv'],
+        swishKey: response.headers['swish-key'],
+        swishNextPublic: response.headers['swish-next'],
+        swishSessionId: response.headers['swish-sess-id'],
+      }
+      if (swishHeaders && swishHeaders['swish-action'] === 'handshake_init') {
+        retVal.swishResponse = this.client.handleHandshakeResponse({
+          headers: retVal.swishResponseHeaders,
+          body: response.data,
+        })
+      } else {
+        retVal.swishResponse = this.client.decryptResponse({
+          headers: retVal.swishResponseHeaders,
+          body: response.data,
+        })
+      }
+    }
+    return retVal as SwishResponse
   }
 }
