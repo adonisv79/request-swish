@@ -5,9 +5,9 @@ This is an axios based swish client used to make SWISH communications with a ser
 ## Project stats
 * Package: [![npm](https://img.shields.io/npm/v/request-swish.svg)](https://www.npmjs.com/package/request-swish) [![npm](https://img.shields.io/npm/dm/request-swish.svg)](https://www.npmjs.com/package/request-swish)
 * License: [![GitHub](https://img.shields.io/github/license/adonisv79/request-swish.svg)](https://github.com/adonisv79/request-swish/blob/master/LICENSE)
-* CICD: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/82a6fbafd28343a9886caf60bbda4dd7)](https://www.codacy.com/app/adonisv79/request-swish?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=adonisv79/request-swish&amp;utm_campaign=Badge_Grade) [![Known Vulnerabilities](https://snyk.io/test/github/adonisv79/request-swish/badge.svg)](https://snyk.io/test/github/adonisv79/request-swish)
+* CICD: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b8dd3e1b4fe54c90a96b9b6a25981018)](https://www.codacy.com/gh/adonisv79/request-swish/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=adonisv79/request-swish&amp;utm_campaign=Badge_Grade) [![Known Vulnerabilities](https://snyk.io/test/github/adonisv79/request-swish/badge.svg)](https://snyk.io/test/github/adonisv79/request-swish)
+  * develop: [![Build Status](https://travis-ci.org/adonisv79/request-swish.svg?branch=develop)](https://travis-ci.org/adonisv79/request-swish) [![Coverage Status](https://coveralls.io/repos/github/adonisv79/request-swish/badge.svg?branch=develop)](https://coveralls.io/github/adonisv79/request-swish?branch=develop)
   * master: [![Build Status](https://travis-ci.org/adonisv79/request-swish.svg?branch=master)](https://travis-ci.org/adonisv79/request-swish) [![Coverage Status](https://coveralls.io/repos/github/adonisv79/request-swish/badge.svg?branch=master)](https://coveralls.io/github/adonisv79/request-swish?branch=master)
-
 
 To install, run the following in your client project
 ```

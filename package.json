@@ -1,6 +1,6 @@
 {
   "name": "request-swish",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Request client utilizing the swish protocol",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dist:client": "node dist/tools/test-client",
+    "start:client": "ts-node tools/test-client",
     "audit": "npm audit",
     "lint": "eslint \"src/**/*.ts\" \"tools/**/*.ts\"",
     "snyk": "snyk test",
@@ -34,7 +35,7 @@
   "homepage": "https://github.com/adonisv79/request-swish#readme",
   "dependencies": {
     "axios": "0.21.1",
-    "swish-protocol": "2.4.2"
+    "swish-protocol": "^2.5.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.22",
