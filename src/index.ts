@@ -21,6 +21,12 @@ interface SwishResponse {
   swishResponseHeaders: SwishHeaders;
 }
 
+interface SwishResponse {
+  // body: Record<string, unknown> | Buffer;
+  swishResponse: Record<string, unknown> | Buffer;
+  swishResponseHeaders: SwishHeaders;
+}
+
 /** Defines a Swish Request Class that allows a client to communicate with a server */
 export default class RequestSwishClient {
   private client: SwishClient
