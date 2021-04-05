@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import {
-  SwishClient, SwishBody, SwishHeaders,
+  SwishClient, SwishBody, SwishHeaders, SwishPackage,
 } from 'swish-protocol'
 
 /** HTTP Request parameters used to identify a public resource */
@@ -11,10 +11,8 @@ export interface HTTPRequestConfig {
 
 interface SwishHttpHeaders {
   'swish-action': string;
-  'swish-iv': string;
-  'swish-key': string;
-  'swish-next': string;
   'swish-sess-id': string;
+  'swish-token': string;
 }
 
 interface SwishResponse {
@@ -52,10 +50,9 @@ export default class RequestSwishClient {
    * Validates the AxiosResponse if it contains the necessary values to make it a swish request
    * @param response The Axios response object to test
   */
-  private static swishResponseIsValid(response: AxiosResponse): boolean {
+  private static validateSwishResponse(response: AxiosResponse): boolean {
     if (response && response.data && response.headers && response.headers['swish-action']
-      && response.headers['swish-iv'] && response.headers['swish-key']
-      && response.headers['swish-next'] && response.headers['swish-sess-id']
+      && response.headers['swish-sess-id'] && response.headers['swish-token']
     ) { return true }
     throw new Error('SWISH_RESPONSE_INVALID')
   }
@@ -67,13 +64,11 @@ export default class RequestSwishClient {
       responseType: 'json',
       url: this.handshakeStartConfig.url,
     }
-    const swish = this.client.generateHandshake()
+    const swish:SwishPackage = this.client.generateHandshake()
     const swishHeaders: SwishHttpHeaders = {
       'swish-action': swish.headers.swishAction,
-      'swish-iv': swish.headers.swishIV,
-      'swish-key': swish.headers.swishKey,
-      'swish-next': swish.headers.swishNextPublic,
       'swish-sess-id': swish.headers.swishSessionId,
+      'swish-token': swish.headers.swishToken,
     }
     const response = await this.handleRequest(options, swishHeaders, swish.body)
     this.sessionId = response.swishResponseHeaders.swishSessionId
@@ -102,10 +97,8 @@ export default class RequestSwishClient {
     // run the request. we don't use async await coz request-promise uses bluebird
     const swishHeaders: SwishHttpHeaders = {
       'swish-action': swish.headers.swishAction,
-      'swish-iv': swish.headers.swishIV,
-      'swish-key': swish.headers.swishKey,
-      'swish-next': swish.headers.swishNextPublic,
       'swish-sess-id': swish.headers.swishSessionId,
+      'swish-token': swish.headers.swishToken,
     }
     const response = await this.handleRequest(options, swishHeaders, swish.body)
     return response
@@ -124,13 +117,11 @@ export default class RequestSwishClient {
     }
 
     const response = await axios(options)
-    if (RequestSwishClient.swishResponseIsValid(response)) {
+    if (RequestSwishClient.validateSwishResponse(response)) {
       retVal.swishResponseHeaders = {
         swishAction: response.headers['swish-action'],
-        swishIV: response.headers['swish-iv'],
-        swishKey: response.headers['swish-key'],
-        swishNextPublic: response.headers['swish-next'],
         swishSessionId: response.headers['swish-sess-id'],
+        swishToken: response.headers['swish-token'],
       }
       if (swishHeaders && swishHeaders['swish-action'] === 'handshake_init') {
         retVal.swishResponse = this.client.handleHandshakeResponse({
