@@ -7,9 +7,6 @@ script:
 - npm run lint
 - npm run test
 after_success: npm run coveralls
-env:
-  SNYK_TOKEN:
-    secure: mzoc9Mc1B0T8/NkASDchYfd/9Vs/iwmzdYYgtiF44YKdwiBykM8hDSKeN48EjwZ9xys7DCyQ8U/uiecufTqmqKEyXDwqpyesrNWnkHvzapW4JWetMvE2tbJ83InktvUTilnvgCqJc+lEclGM8PmiuhgCY8RCJ34uuY/51Ry38/IVRF70Fes3fw+bydLLHKbH3xAygp2cQ4h6iei+sBlWrWcYHoZLA5VeBh+56gg2Rr+AqMV7u+1regPXCa02qPHLEjEiVqyHeYGgbb3eNcjmWcmIO9ZUQ6Ivl6k6bxrlsGs1by8aObGRfrrPXcKw3LKzQEbkDaK3vfS8VlPV+q8u9OpEVmPYNVr5PYJ2EKjcMAr3pYFGAsnPrPyrb3R4wMAdm8e8gEsi6HwYAOh8keYRzzvtafV+221aBBnirrARBXJf9jRw/wnX1qtGPl1EE0aB8pIpxJ60CKDxmREvajfeh5TakYae+MUK4tMK+o597SbJVlv8agBHUiDcMrIUEMkkqNdegttJ8RrmFb/gpVyc+Sf2Ipa+TCYf4vkhbO+1Iym+aZV9k/7jS/ddPZ8crQYiRz4h5rtqlOnfP8WsTx6jLJNZZ+lgFkGBBu8PJQcYwQLPyZChv1/7aImLAGLz/SQfoHt3aTgo1/jUQFs85bWTHz+7psz8N840CJOAfS9dRRo=
 before_deploy:
 - npm run build
 deploy:
