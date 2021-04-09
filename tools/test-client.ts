@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 import RequestSwishClient, { HTTPRequestConfig } from '../src/index'
 
-const SERVER_URL = 'http://localhost:3000'
+const SERVER_URL = 'http://localhost:3000/sapi'
 const httpStartHandshake: HTTPRequestConfig = {
   method: 'POST',
-  url: `${SERVER_URL}/auth/handshake`,
+  url: SERVER_URL,
 }
 const httpKillHandshake: HTTPRequestConfig = {
   method: 'DELETE',
-  url: `${SERVER_URL}/auth/handshake`,
+  url: SERVER_URL,
 }
 const swishClient = new RequestSwishClient(httpStartHandshake, httpKillHandshake)
 
@@ -42,7 +42,7 @@ async function testRequest(path: string, data: Record<string, unknown>) {
 
 async function testDestroySession() {
   console.log('Destroying handshake session...')
-  const r = await swishClient.releaseHandshake()
+  const r = await swishClient.releaseHandshake({ reason: 'testing' })
   console.log(r.swishResponse)
 }
 
@@ -56,6 +56,10 @@ async function test() {
     // destroy the session
     await testDestroySession()
     // try an illegal access now session is destoryed
+    await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' })
+    // try to create a new handshake and connect again
+    console.log('Reconnecting and try again')
+    await testHandShake()
     await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' })
   } catch (err) {
     console.error(err.message)

@@ -53,11 +53,34 @@ describe('SwishClient.generateHandshake', () => {
   })
 })
 
-describe('SwishClient.releaseHandshake', () => {
-  test('', async () => {
+describe('SwishClient.sendSwish', () => {
+  test('should be able to send a swish command', async () => {
     mockedSwishClient.prototype.encryptRequest.mockReturnValueOnce({
       headers: {
-        swishAction: 'session_destroy',
+        swishAction: '',
+        swishSessionId: 'adonisv79',
+        swishToken: 'thisissomevalidaesiv.thisissomevalidaeskey.thisissomevalidrsanextpublickey',
+      },
+      body: {
+        encBody: '',
+        isJson: false,
+      },
+    })
+    mockedSwishClient.prototype.decryptResponse.mockReturnValueOnce({ foo: 'bar' })
+    const r = await client.sendSwish({
+      data: {},
+    })
+    expect(r.swishResponseHeaders.swishAction).toEqual('mocked_response')
+    expect(r.swishResponseHeaders.swishSessionId).toEqual('a4c45c559590')
+    expect(r.swishResponse).toStrictEqual({ foo: 'bar' })
+  })
+})
+
+describe('SwishClient.releaseHandshake', () => {
+  test('should be able to destroy a session', async () => {
+    mockedSwishClient.prototype.encryptRequest.mockReturnValueOnce({
+      headers: {
+        swishAction: '',
         swishSessionId: 'adonisv79',
         swishToken: 'thisissomevalidaesiv.thisissomevalidaeskey.thisissomevalidrsanextpublickey',
       },
@@ -67,7 +90,28 @@ describe('SwishClient.releaseHandshake', () => {
       },
     })
     mockedSwishClient.prototype.decryptResponse.mockReturnValueOnce({ logout_status: 'ok' })
-    const r = await client.releaseHandshake()
+    const r = await client.sendSwish({
+      data: {},
+    })
+    expect(r.swishResponseHeaders.swishAction).toEqual('mocked_response')
+    expect(r.swishResponseHeaders.swishSessionId).toEqual('a4c45c559590')
+    expect(r.swishResponse).toStrictEqual({ logout_status: 'ok' })
+  })
+
+  test('should be able to destroy a session', async () => {
+    mockedSwishClient.prototype.encryptRequest.mockReturnValueOnce({
+      headers: {
+        swishAction: 'handshake_destroy',
+        swishSessionId: 'adonisv79',
+        swishToken: 'thisissomevalidaesiv.thisissomevalidaeskey.thisissomevalidrsanextpublickey',
+      },
+      body: {
+        encBody: '',
+        isJson: false,
+      },
+    })
+    mockedSwishClient.prototype.decryptResponse.mockReturnValueOnce({ logout_status: 'ok' })
+    const r = await client.releaseHandshake({ someData: 1 })
     expect(r.swishResponseHeaders.swishAction).toEqual('mocked_response')
     expect(r.swishResponseHeaders.swishSessionId).toEqual('a4c45c559590')
     expect(r.swishResponse).toStrictEqual({ logout_status: 'ok' })
