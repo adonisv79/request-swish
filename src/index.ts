@@ -76,13 +76,19 @@ export default class RequestSwishClient {
   }
 
   /** Ends the swish handshake connection with the server and clears the session */
-  async releaseHandshake(): Promise<SwishResponse> {
+  async releaseHandshake(data: Record<string, unknown>): Promise<SwishResponse> {
     const options: AxiosRequestConfig = {
       method: this.handshakeKillConfig.method,
       responseType: 'json',
       url: this.handshakeKillConfig.url,
     }
-    const response = await this.sendSwish(options)
+    const swish = this.client.encryptRequest(data)
+    const swishHeaders: SwishHttpHeaders = {
+      'swish-action': 'handshake_destroy',
+      'swish-sess-id': swish.headers.swishSessionId,
+      'swish-token': swish.headers.swishToken,
+    }
+    const response = await this.handleRequest(options, swishHeaders, swish.body)
     this.sessionId = ''
     return response
   }
@@ -94,7 +100,6 @@ export default class RequestSwishClient {
    */
   async sendSwish(options: AxiosRequestConfig): Promise<SwishResponse> {
     const swish = this.client.encryptRequest(options.data)
-    // run the request. we don't use async await coz request-promise uses bluebird
     const swishHeaders: SwishHttpHeaders = {
       'swish-action': swish.headers.swishAction,
       'swish-sess-id': swish.headers.swishSessionId,
@@ -104,17 +109,10 @@ export default class RequestSwishClient {
     return response
   }
 
-  private async handleRequest(options: AxiosRequestConfig, swishHeaders?: SwishHttpHeaders, swishBody?: SwishBody): Promise<SwishResponse> {
+  private async handleRequest(options: AxiosRequestConfig, swishHeaders: SwishHttpHeaders, swishBody: SwishBody): Promise<SwishResponse> {
     const retVal: Partial<SwishResponse> = {}
-
-    if (swishHeaders || swishBody) { // if any exists...
-      if (!(swishHeaders && swishBody)) { // but not both
-        throw new Error('SWISH_REQUEST_INVALID_FORMAT')
-      } else {
-        options.headers = { ...options.headers, ...swishHeaders } // merge the headers...
-        options.data = swishBody // them override the entire body with the encrypted version
-      }
-    }
+    options.headers = { ...options.headers, ...swishHeaders } // merge the headers...
+    options.data = swishBody // them override the entire body with the encrypted version
 
     const response = await axios(options)
     if (RequestSwishClient.validateSwishResponse(response)) {
