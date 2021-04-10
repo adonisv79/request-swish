@@ -55,7 +55,8 @@ async function test() {
     await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' })
     // destroy the session
     await testDestroySession()
-    // try an illegal access now session is destoryed
+    // try an illegal access now session is destroyed
+    console.log('Session destroyed so the next call should fail...')
     await testRequest('test/success', { action: 'move', message: 'Japan', passcode: 'whereami' })
     // try to create a new handshake and connect again
     console.log('Reconnecting and try again')
