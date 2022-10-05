@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/adonisv79/request-swish#readme",
   "dependencies": {
-    "axios": "0.21.1",
+    "axios": "0.21.3",
     "swish-protocol": "^2.5.0"
   },
   "devDependencies": {
